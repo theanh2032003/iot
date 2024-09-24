@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+      crossorigin="anonymous"
+    />
+    <script src="jquery.js"></script>
+    <script src="socket.io/socket.io.js"></script>
+    <!-- <script src="highcharts.js"></script>
+    <script src="export-data1.js"></script> -->
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+    <!-- <script src="accessibility.js"></script> -->
+    <script src="xuly.js"></script>
+
+    <link rel="stylesheet" href="/home.css" />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <title>Smart home</title>
+  </head>
+
+  <body>
+    <div class="content">
+      <aside>
+        <p style="margin: 25px 0 24.5px 38px; font-size: 30px; font-weight: 600;"> Menu </p>
+        <a href="/" class="active">
+          <i class="fa fa-user-o" aria-hidden="true"></i>
+          HOME
+        </a>
+        <a href="/history">
+          <i class="fa fa-laptop" aria-hidden="true"></i>
+          DATA SENSOR
+        </a>
+        <a href="/log">
+          <i class="fa fa-clone" aria-hidden="true"></i>
+          ACTION
+        </a>
+        <a href="/profile">
+          <i class="fa fa-star-o" aria-hidden="true"></i>
+          PROFILE
+        </a>
+      </aside>
+      <div class="main-content">
+        <div class="main-title">BẢNG ĐIỀU KHIỂN SMARTHOME</div>
+        <div class="left-block">
+          <div class="current-state">
+            <div class="parameters-display">
+              <div class="element-container">
+                <div class="element-block" style="background-color: #13adc4">
+                  <img
+                    class="element-icon"
+                    src="night-symbol-of-the-moon-with-a-cloud-and-stars.png"
+                    alt=""
+                  />
+                  <div class="current-time element-text" style="margin-top: 30px;">
+                    <p id="date"></p>
+                    <p id="time"></p>
+                  </div>
+                </div>
+                <div class="element-block"  id="temperatureBlock" style="background-color: #ff7e6c">
+                  <img class="element-icon" src="temprature.png" alt="" />
+                  <div class="element-text">
+                    <p class="right5px">Nhiệt độ</p>
+                    <p id="currentTemp"> 30 C</p>
+                    <!-- <p>°C</p> -->
+                  </div>
+                </div>
+                <div class="element-block" id="lightBlock" style="background-color: #ffca00">
+                  <img class="element-icon" src="sunny.png" alt="" />
+                  <div class="element-text">
+                    <p class="right5px">Ánh sáng</p>
+                    <p id="currentLight">100 lux</p>
+                    <!-- <p>Lux</p> -->
+                  </div>
+                </div>
+                <div class="element-block" id="humidityBlock" style="background-color: #5c7ee3">
+                  <img class="element-icon" src="drop.png" alt="" />
+                  <div class="element-text">
+                    <p class="right5px">Độ ẩm</p>
+                    <p id="currentHumi">20 %</p>
+                    <!-- <p>%</p> -->
+                  </div>
+                </div>
+                <div class="element-block" style="background-color: #25384e" id="warningSection">
+                  <!-- <div style="display: flex; margin-top: 60px"> -->
+                    <img class="element-icon" src="bell.png" alt="" />
+                    <p style="margin-top: 47px; margin-left: 10px; color: #777f89">
+                      Tự động cảnh báo
+                    </p>
+                  </div>
+                </div>                
+              </div>
+            </div>
+
+          </div>
+        <div class="right-block">
+          <figure class="highcharts-figure">
+            <div id="container"></div>
+          </figure>
+          <div class="livingroom-control">
+            <div class="main-title" style="border-radius: 30px;">PHÒNG KHÁCH</div>
+            <div class="element-container" >
+              <div
+                id="light"
+                class="element-block appliances width100 center turn-off"
+                onclick="turnOnOffLight()"
+              >
+                <img
+                  class="element-icon light-off"
+                  src="—Pngtree—cartoon illustration black light bulb_4472958.png"
+                  alt=""
+                />
+                <img
+                  class="element-icon light-on"
+                  src="lightbulb.png"
+                  alt=""
+                  style="display: none"
+                />
+                <div class="element-text" style="margin-top: 46px;">
+                  <p>Đèn</p>
+                </div>
+              </div>
+            </div>
+            <div class="element-container">
+              <div
+                id="fan"
+                class="element-block appliances width100 center turn-off"
+                onclick="turnOnOffFan()"
+              >
+                <img
+                  class="element-icon fan"
+                  src="—Pngtree—fan icon_4421643.png"
+                  alt=""
+                />
+                <div class="element-text" style="margin-top: 46px;">
+                  <p>Quạt</p>
+                </div>
+              </div>
+            </div>
+            <div class="element-container">
+              <div
+                id="television"
+                class="element-block appliances width100 center turn-off"
+                onclick="turnOnOffTelevision()"
+              >
+                <img class="element-icon" src="television.png" alt="" />
+                <div class="element-text" style="margin-top: 46px;">
+                  <p>Ti vi</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>        
+        </div>
+
+      </div>
+    <script type="text/javascript">
+
+      var lightStatus = false;
+      var fanStatus = false;
+      var televisionStatus = false;
+      //topic
+      var topic_light_control_sub_front = "front/control/sub/light";
+      var topic_fan_control_sub_front = "front/control/sub/fan";
+      var topic_television_control_sub_front = "front/control/sub/television";
+
+      var topic_light_control_pub_front = "front/control/pub/light";
+      var topic_fan_control_pub_front = "front/control/pub/fan";
+      var topic_television_control_pub_front = "front/control/pub/television";
+      var topic_data_sensor_control_pub_front = "front/control/pub/data_sensor";
+
+      function interpolateColor(color1, color2, factor) {
+        var result = color1.slice();
+        for (var i = 0; i < 3; i++) {
+          result[i] = Math.round(result[i] + (color2[i] - result[i]) * factor);
+        }
+        return `rgb(${result[0]}, ${result[1]}, ${result[2]})`;
+      }
+
+      function updateElementColor(elementId, value, minValue, maxValue, color1, color2) {
+        var element = document.getElementById(elementId);
+        var colorIntensity = Math.min(Math.max((value - minValue) / (maxValue - minValue), 0), 1);
+        var color = interpolateColor(color1, color2, colorIntensity);
+        element.style.backgroundColor = color;
+      }
+
+
+      function updateDeviceStatuses() {
+
+        lightStatus = "<%= deviceStatus.light %>" === "on" ? true : false;
+        fanStatus = "<%= deviceStatus.fan %>" === "on" ? true : false;
+        televisionStatus = "<%= deviceStatus.television %>" === "on" ? true : false;
+        toggleLight();
+        fan();
+        television();
+      }
+
+      // Cập nhật trạng thái thiết bị khi trang được tải
+      window.onload = function () {
+        updateDeviceStatuses();
+      };
+
+      function formatTimestamp(timestamp) {
+        var date = new Date(timestamp * 1000); // Chuyển đổi từ giây sang mili giây
+        var day = ("0" + date.getDate()).slice(-2);
+        var month = ("0" + (date.getMonth() + 1)).slice(-2);
+        var year = date.getFullYear();
+        var hours = ("0" + date.getHours()).slice(-2);
+        var minutes = ("0" + date.getMinutes()).slice(-2);
+        var seconds = ("0" + date.getSeconds()).slice(-2);
+        return `${day}/${month}/${year} - ${hours}:${minutes}:${seconds}`;
+    }
+
+
+      var chart = Highcharts.chart('container', {
+            chart: {
+                type: 'line',
+                events: {
+                    load: function () {
+                        var seriesHumidity = this.series[0];
+                        var seriesTemperature = this.series[1];
+                        var seriesLux = this.series[2];
+
+                        // Kết nối socket
+                        // var socket = io('http://localhost:3000'); // Thay thế bằng URL socket của bạn
+
+                        // Lắng nghe dữ liệu từ socket
+                        socket.on(topic_data_sensor_control_pub_front, function (data) {
+                            var objData = data.objData;
+                            var formattedTimestamp = formatTimestamp(objData.timestamp);
+
+                            // Thêm dữ liệu mới vào biểu đồ với hiệu ứng
+                            seriesHumidity.addPoint([formattedTimestamp, objData.humidity], true, false);
+                            seriesTemperature.addPoint([formattedTimestamp, objData.temperature], true, false);
+                            seriesLux.addPoint([formattedTimestamp, objData.lux], true, false);
+
+                            // Cập nhật giá trị hiện tại
+                            document.getElementById("currentTemp").textContent = parseFloat(objData.temperature).toFixed(2) + ' °C';
+                            document.getElementById("currentHumi").textContent = parseFloat(objData.humidity).toFixed(2) + ' %';
+                            document.getElementById("currentLight").textContent = parseFloat(objData.lux).toFixed(2) + ' lux';
+
+                            updateElementColor("temperatureBlock", objData.temperature, 0, 50, [255, 255, 255], [255, 0, 0]); // Từ trắng đến đỏ
+                            updateElementColor("lightBlock", objData.lux, 0, 1000, [255, 255, 0], [255, 165, 0]); // Từ vàng đến cam
+                            updateElementColor("humidityBlock", objData.humidity, 0, 100, [0, 0, 255], [0, 0, 139]); // Từ xanh dương nhạt đến xanh dương đậm
+                        });
+                    }
+                }
+            },
+            title: {
+                text: 'Live Chart - Nhiệt độ, Độ ẩm và Ánh sáng'
+            },
+            xAxis: {
+                type: 'datetime',
+                title: {
+                    text: 'Thời gian'
+                }
+            },
+            yAxis: {
+                title: {
+                    text: 'Giá trị'
+                }
+            },
+            series: [{
+                name: 'Độ ẩm',
+                data: [],
+                color: '#1E90FF', // Màu xanh dương
+                turboThreshold: 0 // Để xử lý số lượng dữ liệu lớn
+            }, {
+                name: 'Nhiệt độ',
+                data: [],
+                color: '#FF4500', // Màu cam
+                turboThreshold: 0 // Để xử lý số lượng dữ liệu lớn
+            }, {
+                name: 'Ánh sáng (lux)',
+                data: [],
+                color: '#32CD32', // Màu xanh lá
+                turboThreshold: 0 // Để xử lý số lượng dữ liệu lớn
+            }]
+        });
+
+        // Hàm chuyển đổi timestamp
+        function formatTimestamp(timestamp) {
+            return new Date(timestamp).getTime(); // Chuyển đổi timestamp thành định dạng thời gian (ms)
+        } 
+
+      // socket pub tới backend
+      function turnOnOffLight() {
+        lightStatus = ! lightStatus;
+        socket.emit(topic_light_control_sub_front, lightStatus ? 'on' : 'off');
+      }
+
+      function turnOnOffFan() {
+        fanStatus = ! fanStatus;
+        socket.emit(topic_fan_control_sub_front, fanStatus ? 'on' : 'off');
+      }
+
+      function turnOnOffTelevision() {
+        televisionStatus = ! televisionStatus;
+        socket.emit(topic_television_control_sub_front, televisionStatus ? 'on' : 'off');
+      }
+
+      // socket bật tắt thiết bị sub từ backend
+      socket.on(topic_light_control_pub_front, function (data) {
+          lightStatus = data.state === "on";
+          toggleLight();
+      });
+
+      socket.on(topic_fan_control_pub_front, function (data) {
+          fanStatus = data.state === "on";
+          fan();
+      });
+
+      socket.on(topic_television_control_pub_front, function (data) {
+        console.log(data.state)
+          televisionStatus = data.state === "on";
+          television();
+      });
+      
+      // hàm set thời gian
+      var dateDisplay = document.getElementById("date");
+      var timeDisplay = document.getElementById("time");
+
+      function refreshTime() {
+        var dateString = new Date().toLocaleString("en-US", {
+          timeZone: "Asia/Jakarta",
+        });
+        var formattedString = dateString.replace(", ", " - ");
+        var parts = formattedString.split(" - ");
+  
+        var datePart = parts[0]; 
+        var timePart = parts[1]; 
+        timeDisplay.innerHTML = timePart;
+        dateDisplay.innerHTML = datePart;
+      }
+
+      setInterval(refreshTime, 1000);
+
+      // hàm bật tắt thiết bị
+      function toggleLight() {
+        const lightBlock = document.getElementById("light");
+        const lightOffImage = lightBlock.querySelector(".light-off");
+        const lightOnImage = lightBlock.querySelector(".light-on");
+
+        if (lightStatus) {
+          lightOffImage.style.display = "none";
+          lightOnImage.style.display = "block";
+          lightBlock.classList.add("turn-on");
+        } else {
+          lightOffImage.style.display = "block";
+          lightOnImage.style.display = "none";
+          lightBlock.classList.remove("turn-on");
+        }
+      }
+
+      function fan() {
+        const fanBlock = document.getElementById("fan");
+        var fanIcon = document.querySelector(".fan");
+
+        if (fanStatus) {
+          fanIcon.style.animationDuration = 3 + "s";
+          fanBlock.classList.add("turn-on");
+        } else {
+          fanIcon.style.animationDuration = 0 + "s";
+          fanBlock.classList.remove("turn-on");
+        }
+      }
+
+      function television() {
+        const televisionBlock = document.getElementById("television");
+        console.log("televisionBlock");
+        if (televisionStatus) {
+          televisionBlock.classList.add("turn-on");
+        } else {
+          televisionBlock.classList.remove("turn-on");
+        }
+      }
+      
+    </script>
+  </body>
+</html>

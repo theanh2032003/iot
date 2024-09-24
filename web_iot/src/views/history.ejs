@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+ 
+<head>
+    <title>History</title>
+    <meta charset="utf-8">
+    <script src="jquery.js"></script>
+    <script src="socket.io/socket.io.js"> </script>
+    <script src="xuly.js"></script>
+    <link rel="stylesheet" type="text/css" href="/history.css">
+</head>
+ 
+<body>
+    <aside>
+        <p style="margin-left: 38px; font-size: 30px; font-weight: 600;"> Menu </p>
+        <a href="/">
+          <i class="fa fa-user-o" aria-hidden="true"></i>
+          HOME
+        </a>
+        <a href="/history" class="active">
+          <i class="fa fa-laptop" aria-hidden="true"></i>
+          DATA SENSOR
+        </a>
+        <a href="/log">
+          <i class="fa fa-clone" aria-hidden="true"></i>
+          ACTION
+        </a>
+        <a href="/profile">
+          <i class="fa fa-star-o" aria-hidden="true"></i>
+          PROFILE
+        </a>
+      </aside>
+
+    <div id="wrapper">
+        <div class="main-title">DATA HISTORY</div>
+        <div id="filter-wrapper">
+            <!-- Dropdown for choosing the filter field -->
+            <label for="filter-field">Chọn trường cần lọc:</label>
+            <select id="filter-field">
+                <option value="temperature">Nhiệt độ</option>
+                <option value="humidity">Độ ẩm</option>
+                <option value="lux">Ánh sáng</option>
+                <option value="time">Thời gian</option>
+            </select>
+
+            <!-- Input fields for from and to -->
+            <label for="filter-from">Từ:</label>
+            <input type="text" id="filter-from" size="10">
+
+            <label for="filter-to">Đến:</label>
+            <input type="text" id="filter-to" size="10">
+
+            <!-- Filter submit button -->
+            <button id="submit-filter" class="btn">Lọc</button>
+        </div>
+
+        <div id="h-header">
+            <div id="h-id" class="header-content">ID</div>
+            <div id="h-time" class="header-content">Thời gian</div>
+            <div id="h-temp" class="header-content">Nhiệt độ</div>
+            <div id="h-humi" class="header-content">Độ ẩm</div>
+            <div id="h-lux" class="header-content">Ánh sáng</div>
+
+        </div>
+
+        <div id="h-body">
+            <!-- Rows will be inserted here -->
+        </div>
+        <div id="pagination">
+            <button id="prev-page" class="btn">Lùi</button>
+            <input type="text" id="current-page" style="min-width: 110px;" min="0">
+            <button id="next-page" class="btn">Tiến</button>
+            <label for="page-size">Page size:</label>
+            <input type="text" id="page-size" min="1">
+        </div>
+        <script type="text/javascript">
+            let filterValues = {
+                temperature: { from: null, to: null },
+                humidity: { from: null, to: null },
+                lux: { from: null, to: null },
+                time: { from: null, to: null }
+            };
+            document.addEventListener('DOMContentLoaded', function() {
+    // Cập nhật các trường filter và pagination khi trang được load
+    function updateFilterAndPagination() {
+        // Lấy dữ liệu filter từ backend (filtersData)
+        const filters = filtersData || {
+            temperatureFrom: null,
+            temperatureTo: null,
+            humidityFrom: null,
+            humidityTo: null,
+            lightFrom: null,
+            lightTo: null,
+            timeFrom: null,
+            timeTo: null
+        };
+
+        // Gán lại các giá trị filter từ backend vào filterValues
+        filterValues.temperature.from = filters.temperatureFrom || '';
+        filterValues.temperature.to = filters.temperatureTo || '';
+        filterValues.humidity.from = filters.humidityFrom || '';
+        filterValues.humidity.to = filters.humidityTo || '';
+        filterValues.lux.from = filters.lightFrom || '';
+        filterValues.lux.to = filters.lightTo || '';
+        filterValues.time.from = filters.timeFrom || '';
+        filterValues.time.to = filters.timeTo || '';
+
+        // Cập nhật các input filter trên giao diện dựa trên trường đang chọn
+        const selectedField = document.getElementById('filter-field').value;
+        document.getElementById('filter-from').value = filterValues[selectedField].from || '';
+        document.getElementById('filter-to').value = filterValues[selectedField].to || '';
+
+        // Đảm bảo đúng định dạng khi trường chọn là 'time'
+        if (selectedField === 'time') {
+            document.getElementById('filter-from').type = 'date';
+            document.getElementById('filter-to').type = 'date';
+        } else {
+            document.getElementById('filter-from').type = 'text';
+            document.getElementById('filter-to').type = 'text';
+        }
+
+        console.log(paginationData)
+        // Cập nhật pagination (page và page_size) từ backend nếu cần
+        const totalPage = Math.ceil(paginationData.total_count / paginationData.page_size);
+
+        // Cập nhật giá trị cho current-page dưới dạng "currentPage/totalPage"
+        document.getElementById('current-page').value = paginationData.page + 1 + "/" + totalPage;
+        document.getElementById('page-size').value = paginationData.page_size || 20;
+    }
+
+    // Gọi hàm update khi trang được load
+    updateFilterAndPagination();
+});
+
+            const paginationData = <%- JSON.stringify(pagination) %>;
+            const historyData1 = <%- JSON.stringify(historyData) %>;
+            const filtersData = <%- JSON.stringify(filters) %>;
+
+                const hBody = document.getElementById('h-body');
+            historyData1.forEach(record => {
+                const row = document.createElement('div');
+                row.className = 'row';
+
+                const idDiv = document.createElement('div');
+                idDiv.className = 'content';
+                idDiv.textContent = record.id;
+                row.appendChild(idDiv);
+
+                const timeDiv = document.createElement('div');
+                timeDiv.className = 'content';
+                timeDiv.textContent = new Date(record.time).toLocaleString();
+                row.appendChild(timeDiv);
+
+                const temDiv = document.createElement('div');
+                temDiv.className = 'content';
+                temDiv.textContent = record.temperature;
+                row.appendChild(temDiv);
+
+                const humiDiv = document.createElement('div');
+                humiDiv.className = 'content';
+                humiDiv.textContent = record.humidity;
+                row.appendChild(humiDiv);
+
+                const lightDiv = document.createElement('div');
+                lightDiv.className = 'content';
+                lightDiv.textContent = record.light;
+                row.appendChild(lightDiv);
+
+                hBody.appendChild(row);
+            });
+
+            document.getElementById('filter-field').addEventListener('change', function() {
+                const selectedField = document.getElementById('filter-field').value;
+                if (selectedField === 'time') {
+                    document.getElementById('filter-from').type = 'date';
+                    document.getElementById('filter-to').type = 'date';
+                } else {
+                    document.getElementById('filter-from').type = 'text';
+                    document.getElementById('filter-to').type = 'text';
+                }
+                // Update inputs based on the selected field
+                document.getElementById('filter-from').value = filterValues[selectedField].from || '';
+                document.getElementById('filter-to').value = filterValues[selectedField].to || '';
+            });
+
+            // Handle input field changes
+            document.getElementById('filter-from').addEventListener('input', function() {
+                const selectedField = document.getElementById('filter-field').value;
+                filterValues[selectedField].from = this.value || null;
+            });
+
+            document.getElementById('filter-to').addEventListener('input', function() {
+                const selectedField = document.getElementById('filter-field').value;
+                filterValues[selectedField].to = this.value || null;
+            });
+            function saveCurrentFilterValues() {
+                const selectedField = document.getElementById('filter-field').value;
+                const fromValue = document.getElementById('filter-from').value || null;
+                const toValue = document.getElementById('filter-to').value || null;
+
+                filterValues[selectedField] = {
+                    from: fromValue,
+                    to: toValue
+                };
+            }
+
+            function buildFilterUrl(page) {
+                const temperatureFrom = filterValues.temperature.from || '';
+                const temperatureTo = filterValues.temperature.to || '';
+                const humidityFrom = filterValues.humidity.from || '';
+                const humidityTo = filterValues.humidity.to || '';
+                const luxFrom = filterValues.lux.from || '';
+                const luxTo = filterValues.lux.to || '';
+                const timeFrom = filterValues.time.from || '';
+                const timeTo = filterValues.time.to || '';
+                const pageSize = document.getElementById('page-size').value || 20;
+
+                return `/history?temperatureFrom=${temperatureFrom}&temperatureTo=${temperatureTo}`
+                + `&humidityFrom=${humidityFrom}&humidityTo=${humidityTo}`
+                + `&lightFrom=${luxFrom}&lightTo=${luxTo}`
+                + `&timeFrom=${timeFrom}&timeTo=${timeTo}`
+                + `&page=${page}&pageSize=${pageSize}`;
+            }
+
+    // Filter Button
+    document.getElementById('submit-filter').addEventListener('click', function() {
+        const filterUrl = buildFilterUrl(0); // Start from page 0 when applying filter
+        window.location.href = filterUrl;
+    });
+
+    document.getElementById('prev-page').addEventListener('click', function() {
+    // Tách phần trước dấu "/" để lấy số trang hiện tại
+    const currentPage = parseInt(document.getElementById('current-page').value.split('/')[0]) - 1;
+    if (currentPage > 0) {
+        const prevPageUrl = buildFilterUrl(currentPage - 1);
+        window.location.href = prevPageUrl;
+    }
+});
+
+// Next Page Button
+document.getElementById('next-page').addEventListener('click', function() {
+    // Tách phần trước dấu "/" để lấy số trang hiện tại
+    const currentPage = parseInt(document.getElementById('current-page').value.split('/')[0]) - 1;
+    const totalPage = parseInt(document.getElementById('current-page').value.split('/')[1]);
+    
+    // Chỉ tăng trang nếu chưa đạt đến trang cuối
+    if (currentPage + 1 < totalPage) {
+        const nextPageUrl = buildFilterUrl(currentPage + 1);
+        window.location.href = nextPageUrl;
+    }
+}); 
+
+
+    </script>
+</body>
+</html>

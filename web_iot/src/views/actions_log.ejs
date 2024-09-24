@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+ 
+<head>
+    <title>History</title>
+    <meta charset="utf-8">
+    <script src="jquery.js"></script>
+    <script src="socket.io/socket.io.js"> </script>
+    <script src="xuly.js"></script>
+    <link rel="stylesheet" type="text/css" href="actions_log.css">
+</head>
+ 
+<body>
+    <aside>
+        <p style="margin-left: 38px; font-size: 30px; font-weight: 600;"> Menu </p>
+        <a href="/">
+          <i class="fa fa-user-o" aria-hidden="true"></i>
+          HOME
+        </a>
+        <a href="/history">
+          <i class="fa fa-laptop" aria-hidden="true"></i>
+          DATA SENSOR
+        </a>
+        <a href="/log" class="active">
+          <i class="fa fa-clone" aria-hidden="true"></i>
+          ACTION
+        </a>
+        <a href="/profile">
+          <i class="fa fa-star-o" aria-hidden="true"></i>
+          PROFILE
+        </a>
+    </aside>
+    <div id="wrapper">
+        <div class="main-title">ACTION HISTORY</div>
+        <div id="filter-wrapper">
+            <label for="start-time">Từ:</label>
+            <input type="date" id="start-time" value="<%= filters.from %>">
+
+            <label for="end-time">Đến:</label>
+            <input type="date" id="end-time" value="<%= filters.to %>">
+
+            <button id="submit-filter" class="btn" onclick="applyFilter()">Lọc</button>
+        </div>
+        <div id="h-header">
+            <div id="h-id" class="header-content">ID</div>
+            <div id="h-time" class="header-content">Thời gian</div>
+            <div id="h-temp" class="header-content">Thiết bị</div>
+            <div id="h-humi" class="header-content">Hành động</div>
+        </div>
+
+        <div id="h-body">
+            <!-- Rows will be inserted here -->
+        </div>
+        <div id="pagination">
+            <button id="prev-page" class="btn" onclick="changePage(<%= pagination.page - 1 %>)" <% if (pagination.page <= 0) { %> disabled <% } %>>Lùi</button>
+            <input type="text" id="current-page" style="min-width: 110px;" min="1" readonly>
+            <button id="next-page" class="btn" onclick="changePage(<%= pagination.page + 1 %>)">Tiến</button>
+            <label for="page-size">Page size:</label>
+            <input type="text" id="page-size"  min="1">
+        </div>
+    </div>
+    <script type="text/javascript">
+                const historyData = <%- JSON.stringify(historyData) %>;
+                const paginationData = <%- JSON.stringify(pagination) %>;
+                const hBody = document.getElementById('h-body');
+            historyData.forEach(record => {
+                const row = document.createElement('div');
+                row.className = 'row';
+
+                const idDiv = document.createElement('div');
+                idDiv.className = 'content';
+                idDiv.textContent = record.id;
+                row.appendChild(idDiv);
+
+                const timeDiv = document.createElement('div');
+                timeDiv.className = 'content';
+                timeDiv.textContent = new Date(record.action_time).toLocaleString();
+                row.appendChild(timeDiv);
+
+                const deviceDiv = document.createElement('div');
+                deviceDiv.className = 'content';
+                deviceDiv.textContent = record.device_name;
+                row.appendChild(deviceDiv);
+
+                const actionDiv = document.createElement('div');
+                actionDiv.className = 'content';
+                actionDiv.textContent = record.action;
+                row.appendChild(actionDiv);
+
+                hBody.appendChild(row);
+            });
+            
+            document.addEventListener('DOMContentLoaded', function() {
+                // Cập nhật các trường filter và pagination khi trang được load
+                function updateFilterAndPagination() {
+
+                    console.log(paginationData)
+                    // Cập nhật pagination (page và page_size) từ backend nếu cần
+                    const totalPage = Math.ceil(paginationData.total_count / paginationData.page_size);
+
+                    // Cập nhật giá trị cho current-page dưới dạng "currentPage/totalPage"
+                    document.getElementById('current-page').value = paginationData.page + 1 + "/" + totalPage ;
+                    document.getElementById('page-size').value = paginationData.page_size || 20;
+                }
+
+                // Gọi hàm update khi trang được load
+                updateFilterAndPagination();
+            });
+            
+            function changePage(page) {
+                // Thay đổi trang hiện tại và nạp lại trang với trang mới
+                const pageSize = document.getElementById('page-size').value || <%= pagination.page_size %>;
+                window.location.href = `/log?page=${page}&page_size=${pageSize}&from=<%= filters.from %>&to=<%= filters.to %>`;
+            }
+
+            function applyFilter() {
+                const from = document.getElementById('start-time').value;
+                const to = document.getElementById('end-time').value;
+                const pageSize = document.getElementById('page-size').value || <%= pagination.page_size %>;
+                window.location.href = `/log?page=0&page_size=${pageSize}&from=${from}&to=${to}`;
+            }
+    </script>
+</body>
+</html>

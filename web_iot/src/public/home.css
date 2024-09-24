@@ -1,0 +1,272 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    margin: 0;
+    width: 100vw;
+    height: 100vh;
+}
+
+
+.form-container {
+    text-align: end;
+}
+
+.form {    
+    float: right;
+    margin-left: 13px;
+    padding-left: 7px;
+    padding-right: 7px;
+    text-decoration: none;
+    color: #8a7c7c;
+    border: 1px solid rgb(234, 20, 241);
+    border-radius: 10px;
+}
+
+.form:hover {
+    cursor: pointer;
+    background-color: rgb(105, 105, 218);
+    color: white;
+    transition: 0.7s;
+}
+
+.main-title {
+    /* background-color: #182631; */
+    color: #3f5efb;
+    text-align: center;
+    font-weight: bold;
+    font-size: 30px;
+    padding-top: 8px;
+    padding-bottom: 3px;
+    border-left: 1px solid white;
+}
+
+.content {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+aside {
+    color: #fff;
+    width: 15%;
+    height: 100vh;
+    background-image: linear-gradient(30deg, #0048bd, #44a7fd);
+    border-top-right-radius: 80px;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 0;
+    box-sizing: border-box;
+}
+
+aside a {
+    font-size: 15px;
+    color: #fff;
+    display: block;
+    padding: 12px 12px 12px 30px;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+    margin: 10px 0;
+    font-weight: 600;
+    position: relative;
+}
+
+aside a:hover,
+aside .active {
+    color: #3f5efb;
+    background: #fff;
+    outline: none;
+    position: relative;
+    background-color: #fff;
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+}
+
+aside a i {
+    margin-right: 5px;
+}
+
+aside a:hover::after,
+aside .active::after {
+    content: "";
+    position: absolute;
+    background-color: transparent;
+    bottom: 100%;
+    right: 0;
+    height: 35px;
+    width: 35px;
+    border-bottom-right-radius: 18px;
+    box-shadow: 0 20px 0 0 #fff;
+}
+
+aside a:hover::before,
+aside .active::before {
+    content: "";
+    position: absolute;
+    background-color: transparent;
+    top: 100%;
+    right: 0;
+    height: 35px;
+    width: 35px;
+    border-top-right-radius: 18px;
+    box-shadow: 0 -20px 0 0 #fff;
+}
+  
+.main-content {
+    display: flex;
+    width: 85%; 
+    flex-direction: column;
+    height: 100%;
+    padding-left: 20px;
+}
+
+.left-block {
+    border: 1px solid white;
+    border-right: none;
+    flex-direction: row;
+    padding: 20px 0;
+}
+
+.current-time {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.current-state {
+    display: flex;
+    width: 100%;
+}
+
+.parameters-display {
+    width: 100%;
+    display: flex;
+}
+
+
+@keyframes bgcolor {
+    0% {
+        background-color: #114264
+    }
+
+    30% {
+        background-color: #8ef557
+    }
+
+    60% {
+        background-color: #5a2502
+    }
+
+    90% {
+        background-color: rgb(133, 30, 47)
+    }
+
+    100% {
+        background-color: #5e209c
+    }
+}
+
+.warning-mode-on {
+    -webkit-animation: bgcolor 4s infinite;
+    animation: bgcolor 2s infinite;
+    -webkit-animation-direction: alternate;
+    animation-direction: alternate;
+}
+
+.right-block {
+    border: 1px solid white;
+    border-left: none;
+    display: flex;
+    /* margin-top: 30px; */
+    /* height: ; */
+}
+
+.livingroom-control{
+    margin-left: 30px;
+    width: 30%;
+}
+
+.highcharts-figure{
+    width: 70%;
+}
+
+.element-block {
+    width: calc(100% / 5 - 20px);
+    height: 113px;
+    display: flex;
+    border: 1px solid white;
+    border-right: none;
+    text-align: center;
+    border-radius: 20px;
+    margin: 10px;
+    transition: background-color 1s ease; /* Chuyển màu trong 1 giây */
+}
+
+.element-icon {
+    width: 56px;
+    height: 46px;
+    margin-top: 36px;
+    margin-left: 18px;
+}
+
+.element-text {
+    display: flex;
+    margin-left: 10px;
+    margin-top: 36px;
+    color: white;
+    flex-direction: column;
+    align-items: center;
+}
+.element-text p {
+    margin: 0 20px;
+}
+
+
+.element-container {
+    display: flex;
+    width: 100%;
+}
+
+#container {
+    min-width: 310px;
+    height: 445px;
+    margin: 0 auto;
+  }
+
+.width100 {
+    width: 100%;
+}
+
+.center {
+    justify-content: center;
+}
+
+.turn-off {
+    background-color: #44a7fd;
+}
+
+.turn-on {
+    background-color: rgb(248, 29, 47);
+}
+
+.right5px {
+    margin-right: 5px;
+}
+
+.appliances:hover {
+    cursor: pointer;
+    background-color: rgb(145, 139, 197);
+    transition: 0.5s;
+}
+
+/* Button */
+
+.fan{
+    animation: fananim linear infinite;
+}
+
+@keyframes fananim {
+    100% {
+      transform: rotate(360deg);
+    }
+  }

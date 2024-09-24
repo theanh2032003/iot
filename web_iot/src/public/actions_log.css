@@ -1,0 +1,203 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    margin: 0;
+    width: 100vw;
+    height: 100vh;
+}
+
+
+aside {
+    color: #fff;
+    width: 15%;
+    height: 100vh;
+    background-image: linear-gradient(30deg, #0048bd, #44a7fd);
+    border-top-right-radius: 80px;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 0;
+    box-sizing: border-box;
+}
+
+aside a {
+    font-size: 15px;
+    color: #fff;
+    display: block;
+    padding: 14.65px 12px 14.65px 30px;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+    margin: 10px 0;
+    font-weight: 600;
+    position: relative;
+}
+
+aside a:hover,
+aside .active {
+    color: #3f5efb;
+    background: #fff;
+    outline: none;
+    position: relative;
+    background-color: #fff;
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+}
+
+aside a i {
+    margin-right: 5px;
+}
+
+aside a:hover::after,
+aside .active::after {
+    content: "";
+    position: absolute;
+    background-color: transparent;
+    bottom: 100%;
+    right: 0;
+    height: 35px;
+    width: 35px;
+    border-bottom-right-radius: 18px;
+    box-shadow: 0 20px 0 0 #fff;
+}
+
+aside a:hover::before,
+aside .active::before {
+    content: "";
+    position: absolute;
+    background-color: transparent;
+    top: 100%;
+    right: 0;
+    height: 35px;
+    width: 35px;
+    border-top-right-radius: 18px;
+    box-shadow: 0 -20px 0 0 #fff;
+}
+
+#wrapper {
+    width: 85%;
+    padding: 20px 0 0 0;
+    display: flex;
+    flex-direction: column;
+}
+
+#h-header {
+    display: grid;
+    grid-template-columns: 1fr 2fr 2fr 2fr;
+    gap: 10px;
+    margin-top: 20px;
+    font-weight: bold;
+    background-color: #f2f2f2;
+    width: 80%;
+    margin: 0 auto;
+}
+
+.header-content {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Body styles */
+#h-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+    height: 450px;
+    overflow-y: auto;
+    margin: 0 auto;
+    width: 80%;
+    border: 1px solid #ddd;
+}
+
+.row {
+    display: grid;
+    grid-template-columns: 1fr 2fr 2fr 2fr;
+    gap: 0px;
+    border-bottom: 1px solid #ddd;
+}
+
+.content {
+    padding: 10px;
+    border-right: 1px solid #ddd;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.row .content:last-child {
+    border-right: none;
+}   
+
+/* Filter and Pagination */
+#filter-wrapper {
+    margin: 10px 10% 20px 0;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: right;
+}
+
+.btn {
+    background-color: #4285F4; /* Màu xanh giống nút */
+    color: white; /* Màu chữ */
+    border: none; /* Không có đường viền */
+    padding: 10px 20px; /* Khoảng cách giữa nội dung và viền nút */
+    text-align: center; /* Căn giữa văn bản */
+    text-decoration: none; /* Không có gạch chân */
+    display: inline-block; /* Hiển thị giống nút */
+    font-size: 16px; /* Cỡ chữ */
+    border-radius: 8px; /* Bo góc */
+    cursor: pointer; /* Con trỏ chuột thay đổi khi hover */
+    font-weight: bold; /* Chữ đậm */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Đổ bóng nhẹ */
+}
+
+.btn:hover {
+    background-color: #357ae8; /* Màu xanh đậm hơn khi hover */
+}
+#pagination {
+    margin: 10px 10% 20px 0;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: right;
+}
+input[type="text"],
+input[type="date"] {
+    width: 110px;  /* Đặt kích thước cố định cho input */
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* Đảm bảo padding không thay đổi kích thước tổng thể */
+}
+
+input[type="date"]::-webkit-inner-spin-button,
+input[type="date"]::-webkit-calendar-picker-indicator {
+    display: none;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+#pagination input {
+    width: 50px; /* Chiều rộng */
+    height: 38px; /* Chiều cao */
+    padding: 5px; /* Khoảng cách giữa nội dung và viền */
+    font-size: 16px; /* Kích thước chữ */
+    border-radius: 8px; /* Bo góc */
+    border: 1px solid #ccc; /* Đường viền */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Đổ bóng nhẹ */
+    text-align: center;
+}
+
+
+.main-title {
+    /* background-color: #182631; */
+    color: #3f5efb;
+    text-align: center;
+    font-weight: 600;
+    font-size: 30px;
+    padding-top: 8px;
+    padding-bottom: 3px;
+    border-left: 1px solid white;
+    margin-top: 20PX;
+}
