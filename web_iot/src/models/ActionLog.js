@@ -7,7 +7,7 @@ const ActionLog = {
           id INT AUTO_INCREMENT PRIMARY KEY,
           device_name VARCHAR(255) NOT NULL,
           action VARCHAR(10) NOT NULL,
-          action_time DATETIME NOT NULL
+          action_time VARCHAR(19) NOT NULL
         )
       `;
       return new Promise((resolve, reject) => {
@@ -18,7 +18,7 @@ const ActionLog = {
       });
     },
     insertAction: (deviceName, action) => {
-      const sql = "INSERT INTO user_actions_log (device_name, action, action_time) VALUES (?, ?, NOW())";
+      const sql = "INSERT INTO user_actions_log (device_name, action, action_time) VALUES (?, ?, DATE_FORMAT(NOW(), '%H:%i:%s %d/%m/%Y'))";
       return new Promise((resolve, reject) => {
         db.query(sql, [deviceName, action], (err) => {
           if (err) reject(err);
@@ -32,12 +32,14 @@ const ActionLog = {
         page_size = (page_size == null) ? 20 : page_size;
     
         let conditions = [];
+        
         if (from) {
-          conditions.push(`action_time >= '${from}'`);
+          from = from.replace("%20", " ")
+          conditions.push(`action_time = '${from}'`);
         }
-        if (to) {
-          conditions.push(`action_time <= '${to}'`);
-        }
+        // if (to) {
+        //   conditions.push(`action_time <= '${to}'`);
+        // }
     
         let sql = "SELECT * FROM user_actions_log";
         let count_sql = "SELECT COUNT(*) AS total_count FROM user_actions_log"
@@ -47,7 +49,7 @@ const ActionLog = {
         }
     
         sql += ` ORDER BY ID LIMIT ${page_size} OFFSET ${page * page_size}`;
-    
+        console.log(sql)
         db.query(count_sql, (errCount, countResult) => {
           if (errCount) {
             reject(errCount);
@@ -58,18 +60,18 @@ const ActionLog = {
               if (err) {
                 reject(err);
               } else {
-                console.log({
-                  result: result,
-                  pagination: {
-                    page: page,
-                    page_size: page_size,
-                    total_count: total_count, // Thêm total_count vào pagination
-                  },
-                  filters: {
-                    from: from,
-                    to: to,
-                  }
-                });
+                // console.log({
+                //   result: result,
+                //   pagination: {
+                //     page: page,
+                //     page_size: page_size,
+                //     total_count: total_count, // Thêm total_count vào pagination
+                //   },
+                //   filters: {
+                //     from: from,
+                //     to: to,
+                //   }
+                // });
                 resolve({
                   result: result,
                   pagination: {

@@ -225,3 +225,60 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     border-left: 1px solid white;
     margin-top: 20PX;
 }
+
+
+.header-content {
+    display: flex; /* Sử dụng flexbox để căn chỉnh nội dung */
+    align-items: center; /* Căn giữa theo chiều dọc */
+    justify-content: center;
+}
+
+.sort-container{
+    display: flex;
+    flex-direction: column;
+    margin-left: 3px;
+}
+
+.triangle-down {
+    margin-top: 2px;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid #357ae8;
+    border-bottom: none;
+    padding: 0;
+    background: none;
+    cursor: pointer;
+}
+
+.triangle-up {
+
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 5px solid #357ae8;
+    border-top: none;
+    padding: 0;
+    background: none;
+    cursor: pointer;
+}
+
+.triangle-down:hover {
+    border-top: 5px solid #ca3434;
+    /* background-color: #ca3434;  */
+}
+
+.triangle-down:focus {
+    outline: none; /* Loại bỏ viền khi nút được chọn */
+}
+
+.triangle-up:hover {
+    border-bottom: 5px solid #ca3434;
+    /* background-color: #ca3434;  */
+}
+
+.triangle-up:focus {
+    outline: none; /* Loại bỏ viền khi nút được chọn */
+}

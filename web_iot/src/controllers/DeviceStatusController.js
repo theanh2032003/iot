@@ -8,7 +8,7 @@ const DiviceStatusController = {
       result.forEach(function (row) {
         deviceStatus[row.device_name] = row.status;
       });
-      console.log(deviceStatus)
+      // console.log(deviceStatus)
       res.render('home', { deviceStatus: deviceStatus });
     } catch (err) {
       res.status(500).send(err.message);

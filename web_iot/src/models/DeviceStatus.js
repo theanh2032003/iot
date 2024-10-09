@@ -7,7 +7,7 @@ const DeviceStatus = {
           id INT AUTO_INCREMENT PRIMARY KEY,
           device_name VARCHAR(255) NOT NULL,
           status VARCHAR(10) NOT NULL,
-          time DATETIME NOT NULL
+          time VARCHAR(19) NOT NULL
         )
       `;
       return new Promise((resolve, reject) => {

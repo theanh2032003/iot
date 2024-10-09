@@ -33,28 +33,48 @@
     <div id="wrapper">
         <div class="main-title">ACTION HISTORY</div>
         <div id="filter-wrapper">
-            <label for="start-time">Từ:</label>
-            <input type="date" id="start-time" value="<%= filters.from %>">
+            <label for="start-time">Thời gian:</label>
+            <input type="text" id="start-time" value="<%= filters.from %>">
 
-            <label for="end-time">Đến:</label>
-            <input type="date" id="end-time" value="<%= filters.to %>">
+            <!-- <label for="end-time">Đến:</label> -->
+            <input type="date" style="display: none;" id="end-time" value="<%= filters.to %>">
 
-            <button id="submit-filter" class="btn" onclick="applyFilter()">Lọc</button>
+            <button id="submit-filter" class="btn" onclick="applyFilter()">Search</button>
         </div>
         <div id="h-header">
-            <div id="h-id" class="header-content">ID</div>
-            <div id="h-time" class="header-content">Thời gian</div>
-            <div id="h-temp" class="header-content">Thiết bị</div>
-            <div id="h-humi" class="header-content">Hành động</div>
+            <div id="h-id" class="header-content">ID 
+                <div class="sort-container">
+                    <button class="triangle-up" onclick="sortTable('id', true)"></button>
+                    <button class="triangle-down" onclick="sortTable('id', false)"></button>                    
+                </div>
+            </div>
+            <div id="h-temp" class="header-content">Device 
+                <div class="sort-container">
+                    <button class="triangle-up" onclick="sortTable('device_name', true)"></button>
+                    <button class="triangle-down" onclick="sortTable('device_name', false)"></button>                    
+                </div>
+            </div>
+            <div id="h-humi" class="header-content">Action 
+                <div class="sort-container">
+                    <button class="triangle-up" onclick="sortTable('action', true)"></button>
+                    <button class="triangle-down" onclick="sortTable('action', false)"></button>                    
+                </div>
+            </div>
+            <div id="h-time" class="header-content">Time 
+                <div class="sort-container">
+                    <button class="triangle-up" onclick="sortTable('action_time', true)"></button>
+                    <button class="triangle-down" onclick="sortTable('action_time', false)"></button>                    
+                </div>
+            </div>
         </div>
 
         <div id="h-body">
             <!-- Rows will be inserted here -->
         </div>
         <div id="pagination">
-            <button id="prev-page" class="btn" onclick="changePage(<%= pagination.page - 1 %>)" <% if (pagination.page <= 0) { %> disabled <% } %>>Lùi</button>
+            <button id="prev-page" class="btn" onclick="changePage(<%= pagination.page - 1 %>)" <% if (pagination.page <= 0) { %> disabled <% } %>>Prev</button>
             <input type="text" id="current-page" style="min-width: 110px;" min="1" readonly>
-            <button id="next-page" class="btn" onclick="changePage(<%= pagination.page + 1 %>)">Tiến</button>
+            <button id="next-page" class="btn" onclick="changePage(<%= pagination.page + 1 %>)">Next</button>
             <label for="page-size">Page size:</label>
             <input type="text" id="page-size"  min="1">
         </div>
@@ -62,39 +82,57 @@
     <script type="text/javascript">
                 const historyData = <%- JSON.stringify(historyData) %>;
                 const paginationData = <%- JSON.stringify(pagination) %>;
-                const hBody = document.getElementById('h-body');
-            historyData.forEach(record => {
-                const row = document.createElement('div');
-                row.className = 'row';
+                function renderTable() {
+                    const hBody = document.getElementById('h-body');
+                    hBody.innerHTML = ''; // Xóa nội dung cũ
 
-                const idDiv = document.createElement('div');
-                idDiv.className = 'content';
-                idDiv.textContent = record.id;
-                row.appendChild(idDiv);
+                    historyData.forEach(record => {
+                        const row = document.createElement('div');
+                        row.className = 'row';
 
-                const timeDiv = document.createElement('div');
-                timeDiv.className = 'content';
-                timeDiv.textContent = new Date(record.action_time).toLocaleString();
-                row.appendChild(timeDiv);
+                        const idDiv = document.createElement('div');
+                        idDiv.className = 'content';
+                        idDiv.textContent = record.id;
+                        row.appendChild(idDiv);
 
-                const deviceDiv = document.createElement('div');
-                deviceDiv.className = 'content';
-                deviceDiv.textContent = record.device_name;
-                row.appendChild(deviceDiv);
+                        const deviceDiv = document.createElement('div');
+                        deviceDiv.className = 'content';
+                        deviceDiv.textContent = record.device_name;
+                        row.appendChild(deviceDiv);
 
-                const actionDiv = document.createElement('div');
-                actionDiv.className = 'content';
-                actionDiv.textContent = record.action;
-                row.appendChild(actionDiv);
+                        const actionDiv = document.createElement('div');
+                        actionDiv.className = 'content';
+                        actionDiv.textContent = record.action;
+                        row.appendChild(actionDiv);
 
-                hBody.appendChild(row);
-            });
-            
+                        const timeDiv = document.createElement('div');
+                        timeDiv.className = 'content';
+                        timeDiv.textContent = record.action_time;
+                        row.appendChild(timeDiv);
+
+                        hBody.appendChild(row);
+                    });
+                }
+
+                // Gọi renderTable lần đầu tiên để hiển thị dữ liệu ban đầu
+                renderTable();
+            let sortedAscending = true; // Biến để theo dõi thứ tự sắp xếp
+
+            function sortTable(field, isDesc) {
+                historyData.sort((a, b) => {
+                    if (a[field] > b[field]) return isDesc ? -1 : 1;
+                    if (a[field] < b[field]) return isDesc ? 1 : -1;
+                    return 0;
+                });
+
+                renderTable(); // Cập nhật lại giao diện bảng
+            }
+
             document.addEventListener('DOMContentLoaded', function() {
                 // Cập nhật các trường filter và pagination khi trang được load
                 function updateFilterAndPagination() {
 
-                    console.log(paginationData)
+                    // console.log(paginationData)
                     // Cập nhật pagination (page và page_size) từ backend nếu cần
                     const totalPage = Math.ceil(paginationData.total_count / paginationData.page_size);
 

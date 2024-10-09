@@ -17,27 +17,27 @@ const DataSensorController = {
       } = req.query;
 
       const filtersReq = {
-        temperatureFrom: temperatureFrom ? parseInt(temperatureFrom) : null,
-        temperatureTo: temperatureTo ? parseInt(temperatureTo) : null,
+        temperatureFrom: temperatureFrom ? parseFloat(temperatureFrom) : null,
+        temperatureTo: temperatureTo ? parseFloat(temperatureTo) : null,
         humidityFrom: humidityFrom ? parseInt(humidityFrom) : null,
         humidityTo: humidityTo ? parseInt(humidityTo) : null,
-        lightFrom: lightFrom ? parseInt(lightFrom) : null,
-        lightTo: lightTo ? parseInt(lightTo) : null,
-        timeFrom: timeFrom ? new Date(timeFrom) : null,
-        timeTo: timeTo ? new Date(timeTo) : null,
+        lightFrom: lightFrom ? parseFloat(lightFrom) : null,
+        lightTo: lightTo ? parseFloat(lightTo) : null,
+        timeFrom: timeFrom ? timeFrom : null,
+        timeTo: timeTo ? timeTo : null,
         page: page ? parseInt(page) : 0,
         pageSize: pageSize ? parseInt(pageSize) : 20
       };
 
-      console.log(filtersReq)
+      // console.log(filtersReq)
 
       // Gọi phương thức getAll với các tham số lọc
       const { results, pagination, filters } = await DataLog.getAll(filtersReq);
       // Render dữ liệu vào trang history
-      console.log({
-        historyData: results,
-        filters,
-        pagination })
+      // console.log({
+      //   historyData: results,
+      //   filters,
+      //   pagination })
       res.render("history", {
         historyData: results,
         filters,

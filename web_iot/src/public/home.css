@@ -44,6 +44,7 @@ body {
     display: flex;
     width: 100%;
     height: 100%;
+    margin-right: 20px;
 }
 
 aside {
@@ -190,13 +191,16 @@ aside .active::before {
     width: 70%;
 }
 
+
 .element-block {
     width: calc(100% / 5 - 20px);
+    /* height: auto; */
     height: 113px;
     display: flex;
     border: 1px solid white;
     border-right: none;
     text-align: center;
+    justify-content: center;
     border-radius: 20px;
     margin: 10px;
     transition: background-color 1s ease; /* Chuyển màu trong 1 giây */
@@ -217,6 +221,7 @@ aside .active::before {
     flex-direction: column;
     align-items: center;
 }
+
 .element-text p {
     margin: 0 20px;
 }
@@ -225,13 +230,15 @@ aside .active::before {
 .element-container {
     display: flex;
     width: 100%;
+    /* height: calc(100% / 4); */
+    /* flex: 1; */
 }
 
 #container {
     min-width: 310px;
     height: 445px;
     margin: 0 auto;
-  }
+}
 
 .width100 {
     width: 100%;
@@ -270,3 +277,35 @@ aside .active::before {
       transform: rotate(360deg);
     }
   }
+
+/* Thêm 1 bảng chart */
+.highcharts-figure{
+    width: 70%;
+    display: flex;
+}
+
+.highcharts-figure div{
+    flex: 1;
+}
+
+/* Thêm 1 nút điều khiển thiết bị */
+/* 
+.livingroom-control .element-block {
+    height: auto; 
+    align-items: center;
+}
+
+.livingroom-control .element-block .element-icon{
+    height: auto; 
+    margin: 0;
+}
+
+.livingroom-control .element-block .element-text{
+    height: auto; 
+    margin: 0 !important;
+}
+
+.livingroom-control .element-block img {
+    width: 60px; 
+    height: 30px; 
+}   */

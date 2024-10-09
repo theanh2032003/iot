@@ -5,10 +5,11 @@ const DataLog = {
       const sql = `
         CREATE TABLE IF NOT EXISTS data_log (
           id int(10) not null primary key auto_increment,
-          time datetime not null,
+          time VARCHAR(19) not null,
           temperature FLOAT not null,
           humidity FLOAT not null,
-          light FLOAT not null
+          light FLOAT not null,
+          wind FLOAT not null
         )
       `;
       return new Promise((resolve, reject) => {
@@ -18,10 +19,11 @@ const DataLog = {
         });
       });
     },
-    insertData: (time, temperature, humidity, light) => {
-      const sql = "INSERT INTO data_log (time, temperature, humidity, light) VALUES (FROM_UNIXTIME(?), ?, ?, ?) ;";
+    insertData: ( temperature, humidity, light, wind) => {
+      const sql = "INSERT INTO data_log (time, temperature, humidity, light, wind) VALUES (DATE_FORMAT(NOW(), '%H:%i:%s %d/%m/%Y'), ?, ?, ?, ?) ;";
+  
       return new Promise((resolve, reject) => {
-        db.query(sql, [time, temperature, humidity, light], (err) => {
+        db.query(sql, [parseFloat(temperature).toFixed(2), parseFloat(humidity).toFixed(2), parseFloat(light).toFixed(2), parseFloat(wind).toFixed(2)], (err) => {    
           if (err) reject(err);
           else resolve();
         });
@@ -47,42 +49,27 @@ const DataLog = {
       pageSize = (pageSize == null) ? 20 : pageSize;
       // Thêm điều kiện lọc cho nhiệt độ nếu có
       if (temperatureFrom !== null) {
-        conditions.push("temperature >= ?");
+        conditions.push("ROUND(temperature,2) = ?");
         values.push(temperatureFrom);
-      }
-      if (temperatureTo !== null) {
-        conditions.push("temperature <= ?");
-        values.push(temperatureTo);
       }
     
       // Thêm điều kiện lọc cho độ ẩm nếu có
       if (humidityFrom !== null) {
-        conditions.push("humidity >= ?");
+        conditions.push("humidity = ?");
         values.push(humidityFrom);
       }
-      if (humidityTo !== null) {
-        conditions.push("humidity <= ?");
-        values.push(humidityTo);
-      }
-    
+
       // Thêm điều kiện lọc cho ánh sáng nếu có
       if (lightFrom !== null) {
-        conditions.push("light >= ?");
+        conditions.push("ROUND(light,2) = ?");
         values.push(lightFrom);
-      }
-      if (lightTo !== null) {
-        conditions.push("light <= ?");
-        values.push(lightTo);
       }
     
       // Thêm điều kiện lọc cho thời gian nếu có
       if (timeFrom !== null) {
-        conditions.push("time >= ?");
+        timeFrom = timeFrom.replace("%20", " ");
+        conditions.push("time = '" + timeFrom + "'");
         values.push(timeFrom);
-      }
-      if (timeTo !== null) {
-        conditions.push("time <= ?");
-        values.push(timeTo);
       }
     
       // Tạo câu lệnh SQL
@@ -130,6 +117,24 @@ const DataLog = {
                   results: results
                 });
               }
+            });
+          }
+        });
+      });
+    },
+    countWind: () => {
+      return new Promise((resolve, reject) => {
+        // Tạo câu lệnh SQL để đếm số lượng các bản ghi có giá trị wind > 800
+        let sql = "SELECT COUNT(*) AS total_count FROM data_log WHERE wind > 800";
+    
+        // Thực hiện truy vấn
+        db.query(sql, (err, results) => {
+          if (err) {
+            reject(err);
+          } else {
+            // Trả về kết quả đếm
+            resolve({
+              total_wind_records: results[0].total_count
             });
           }
         });

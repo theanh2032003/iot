@@ -94,17 +94,25 @@
                   <!-- <div style="display: flex; margin-top: 60px"> -->
                     <img class="element-icon" src="bell.png" alt="" />
                     <p style="margin-top: 47px; margin-left: 10px; color: #777f89">
-                      Tự động cảnh báo
+                      Số lần cảnh báo: 
                     </p>
+                </div>
+                <div class="element-block" id="winBlock" style=" background-color: #5c7ee3">
+                  <img class="element-icon" src="drop.png" alt="" />
+                  <div class="element-text">
+                    <p class="right5px">bụi:</p>
+                    <p id="currentWin">20 %</p>
                   </div>
+                </div>
                 </div>                
               </div>
             </div>
 
-          </div>
+        </div>
         <div class="right-block">
           <figure class="highcharts-figure">
             <div id="container"></div>
+            <div id="other-chart"></div>
           </figure>
           <div class="livingroom-control">
             <div class="main-title" style="border-radius: 30px;">PHÒNG KHÁCH</div>
@@ -158,6 +166,28 @@
                 </div>
               </div>
             </div>
+            <div class="element-container" >
+              <div
+                id="other_device"
+                class="element-block appliances width100 center turn-off"
+                onclick="turnOnOffOtherDevice()"
+              >
+                <img
+                  class="element-icon light-off"
+                  src="—Pngtree—cartoon illustration black light bulb_4472958.png"
+                  alt=""
+                />
+                <img
+                  class="element-icon light-on"
+                  src="lightbulb.png"
+                  alt=""
+                  style="display: none"
+                />
+                <div class="element-text" style="margin-top: 46px;">
+                  <p>Cảnh báo</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>        
         </div>
@@ -168,15 +198,20 @@
       var lightStatus = false;
       var fanStatus = false;
       var televisionStatus = false;
+      var otherDeviceStatus = false;
       //topic
       var topic_light_control_sub_front = "front/control/sub/light";
       var topic_fan_control_sub_front = "front/control/sub/fan";
       var topic_television_control_sub_front = "front/control/sub/television";
+      var topic_other_device_control_sub_front = "front/control/sub/other_device";
+      var topic_warning_control_sub_front = "front/control/sub/warning";
 
       var topic_light_control_pub_front = "front/control/pub/light";
       var topic_fan_control_pub_front = "front/control/pub/fan";
       var topic_television_control_pub_front = "front/control/pub/television";
       var topic_data_sensor_control_pub_front = "front/control/pub/data_sensor";
+      var topic_other_device_control_pub_front = "front/control/pub/other_device";
+      var topic_warning_control_pub_front = "front/control/pub/warning";
 
       function interpolateColor(color1, color2, factor) {
         var result = color1.slice();
@@ -195,13 +230,15 @@
 
 
       function updateDeviceStatuses() {
-
+        console.log("<%= deviceStatus.other_device %>");
         lightStatus = "<%= deviceStatus.light %>" === "on" ? true : false;
         fanStatus = "<%= deviceStatus.fan %>" === "on" ? true : false;
         televisionStatus = "<%= deviceStatus.television %>" === "on" ? true : false;
+        otherDeviceStatus = "<%= deviceStatus.other_device %>" === "on" ? true : false;     
         toggleLight();
         fan();
         television();
+        otherDevice();
       }
 
       // Cập nhật trạng thái thiết bị khi trang được tải
@@ -229,28 +266,60 @@
                         var seriesHumidity = this.series[0];
                         var seriesTemperature = this.series[1];
                         var seriesLux = this.series[2];
-
+                        var seriesMs = this.series[3];
+                        console.log(this.series[3]);
+ 
                         // Kết nối socket
                         // var socket = io('http://localhost:3000'); // Thay thế bằng URL socket của bạn
 
                         // Lắng nghe dữ liệu từ socket
                         socket.on(topic_data_sensor_control_pub_front, function (data) {
                             var objData = data.objData;
+                            var winSpeed = (Math.random() * 400 + 60);                      
                             var formattedTimestamp = formatTimestamp(objData.timestamp);
 
                             // Thêm dữ liệu mới vào biểu đồ với hiệu ứng
                             seriesHumidity.addPoint([formattedTimestamp, objData.humidity], true, false);
                             seriesTemperature.addPoint([formattedTimestamp, objData.temperature], true, false);
                             seriesLux.addPoint([formattedTimestamp, objData.lux], true, false);
-
+                            // seriesMs.addPoint([formattedTimestamp, winSpeed], true, false);
                             // Cập nhật giá trị hiện tại
                             document.getElementById("currentTemp").textContent = parseFloat(objData.temperature).toFixed(2) + ' °C';
                             document.getElementById("currentHumi").textContent = parseFloat(objData.humidity).toFixed(2) + ' %';
                             document.getElementById("currentLight").textContent = parseFloat(objData.lux).toFixed(2) + ' lux';
+                            document.getElementById("warningSection").innerHTML = `
+                                                                                    <img class="element-icon" src="bell.png" alt="" />
+                                                                                    <p style="margin-top: 47px; margin-left: 10px; color: #777f89">
+                                                                                      Số lần cảnh báo: ${data.windCount}
+                                                                                    </p>
+                                                                                  `;
+                            console.log(data.windCount);
+                            // document.getElementById("currentWin").textContent = parseFloat(winSpeed).toFixed(2) + ' m/s';
+
+                            if (objData.wind > 800) {  // Ngưỡng nhiệt độ cảnh báo, có thể điều chỉnh
+                              otherDeviceStatus = true;
+                              otherDevice();
+                                // delay(1000); 
+                                // lightStatus = false;
+                                // toggleLight();
+                                // await delay(1000);
+                                // document.getElementById("warningSection").style.backgroundColor = "red"; // Đổi màu sang đỏ
+                                // socket.emit(topic_warning_control_sub_front, 'on');
+                                setTimeout(() => {
+                                  otherDeviceStatus = false;
+                                  otherDevice();
+                                }, 1000);
+                            } else {
+                                lightStatus = false;
+                                toggleLight();
+                                // document.getElementById("warningSection").style.backgroundColor = "#25384e"; // Màu mặc định
+                                // socket.emit(topic_warning_control_sub_front, 'off');
+                            } 
 
                             updateElementColor("temperatureBlock", objData.temperature, 0, 50, [255, 255, 255], [255, 0, 0]); // Từ trắng đến đỏ
                             updateElementColor("lightBlock", objData.lux, 0, 1000, [255, 255, 0], [255, 165, 0]); // Từ vàng đến cam
                             updateElementColor("humidityBlock", objData.humidity, 0, 100, [0, 0, 255], [0, 0, 139]); // Từ xanh dương nhạt đến xanh dương đậm
+                            // updateElementColor("winBlock", winSpeed, 0, 500, [0, 0, 255], [0, 0, 139]); // Từ xanh dương nhạt đến xanh dương đậm
                         });
                     }
                 }
@@ -284,7 +353,67 @@
                 data: [],
                 color: '#32CD32', // Màu xanh lá
                 turboThreshold: 0 // Để xử lý số lượng dữ liệu lớn
-            }]
+            }
+            // , {
+            //     name: 'Tốc độ gió (m/s)',
+            //     data: [],
+            //     color: '#FF00FF', // Màu xanh lá
+            //     turboThreshold: 0 // Để xử lý số lượng dữ liệu lớn
+            // }
+          ]
+        });
+        function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+        var chart = Highcharts.chart('other-chart', {
+            chart: {
+                type: 'line',
+                events: {
+                    load: function () {
+                        var seriesMs = this.series[0];
+                        console.log(this.series[3]);
+ 
+                        // Kết nối socket
+                        // var socket = io('http://localhost:3000'); // Thay thế bằng URL socket của bạn
+
+                        // Lắng nghe dữ liệu từ socket
+                        socket.on(topic_data_sensor_control_pub_front, function (data) {
+                            var objData = data.objData;
+                            var winSpeed = objData.wind;                      
+                            var formattedTimestamp = formatTimestamp( Math.floor(Date.now() / 1000));
+
+                            // Thêm dữ liệu mới vào biểu đồ với hiệu ứng
+                            seriesMs.addPoint([formattedTimestamp, winSpeed], true, false);
+                            // Cập nhật giá trị hiện tại
+                            document.getElementById("currentWin").textContent = parseFloat(winSpeed).toFixed(2) ;
+
+                            updateElementColor("winBlock", winSpeed, 0, 500, [0, 0, 255], [0, 0, 139]); // Từ xanh dương nhạt đến xanh dương đậm
+                        });
+                    }
+                }
+            },
+            title: {
+                text: 'Live Chart - Other chart'
+            },
+            xAxis: {
+                type: 'datetime',
+                title: {
+                    text: 'Thời gian'
+                }
+            },
+            yAxis: {
+                title: {
+                    text: 'Giá trị'
+                }
+            },
+            series: [
+            {
+                name: 'độ bụi',
+                data: [],
+                color: '#FF00FF', // Màu xanh lá
+                turboThreshold: 0 // Để xử lý số lượng dữ liệu lớn
+            }
+          ]
         });
 
         // Hàm chuyển đổi timestamp
@@ -308,6 +437,11 @@
         socket.emit(topic_television_control_sub_front, televisionStatus ? 'on' : 'off');
       }
 
+      function turnOnOffOtherDevice() {
+        otherDeviceStatus = ! otherDeviceStatus;
+        socket.emit(topic_other_device_control_sub_front, otherDeviceStatus ? 'on' : 'off');
+      }
+
       // socket bật tắt thiết bị sub từ backend
       socket.on(topic_light_control_pub_front, function (data) {
           lightStatus = data.state === "on";
@@ -324,7 +458,20 @@
           televisionStatus = data.state === "on";
           television();
       });
+
+      socket.on(topic_other_device_control_pub_front, function (data) {
+        console.log(data.state)
+          otherDeviceStatus = data.state === "on";
+          otherDevice();
+      });
       
+      socket.on(topic_warning_control_pub_front, function (data) {
+        if(data.state){
+          document.getElementById("warningSection").style.backgroundColor = "red"; // Đổi màu sang đỏ
+        } else {
+          document.getElementById("warningSection").style.backgroundColor = "#25384e";
+        }
+      });
       // hàm set thời gian
       var dateDisplay = document.getElementById("date");
       var timeDisplay = document.getElementById("time");
@@ -384,6 +531,21 @@
         }
       }
       
+      function otherDevice() {
+        const otherDeviceBlock = document.getElementById("other_device");
+        const lightOffImage = otherDeviceBlock.querySelector(".light-off");
+        const lightOnImage = otherDeviceBlock.querySelector(".light-on");
+        // console.log(otherDeviceBlock);
+        if (otherDeviceStatus) {
+          lightOffImage.style.display = "none";
+          lightOnImage.style.display = "block";
+          otherDeviceBlock.classList.add("turn-on");
+        } else {
+          lightOffImage.style.display = "block";
+          lightOnImage.style.display = "none";
+          otherDeviceBlock.classList.remove("turn-on");
+        }
+      }
     </script>
   </body>
 </html>

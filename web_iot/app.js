@@ -16,6 +16,8 @@ const DeviceStatus = require('./src/models/DeviceStatus');
 const DataLog = require('./src/models/DataLog');
 
 DataLog.createTable()
+ActionLog.createTable()
+DeviceStatus.createTable()
 
 // Middleware
 app.use(express.json());
@@ -59,6 +61,12 @@ const setupMQTT = async () => {
       await MQTTService.subscribe(process.env.TOPIC_TEM_HUMI_SUB_ESP8266);
       console.log(`Subscribed to topic: ${process.env.TOPIC_TEM_HUMI_SUB_ESP8266}`);
 
+      await MQTTService.subscribe(process.env.TOPIC_OTHER_DEVICE_RES_STATUS_SUB_ESP8266);
+      console.log(`Subscribed to topic: ${process.env.TOPIC_OTHER_DEVICE_RES_STATUS_SUB_ESP8266}`);
+
+      await MQTTService.subscribe(process.env.TOPIC_WARNING_RES_STATUS_SUB_ESP8266);
+      console.log(`Subscribed to topic: ${process.env.TOPIC_WARNING_RES_STATUS_SUB_ESP8266}`);
+
 
       MQTTService.onMessage((topic, message) => {
         // console.log(`Message received: ${message} from topic: ${topic}`);
@@ -96,12 +104,39 @@ const setupMQTT = async () => {
 
         } else if (topic === process.env.TOPIC_TEM_HUMI_SUB_ESP8266) {
           try {
-          DataLog.insertData(objData.timestamp, parseFloat(objData.temperature).toFixed(2), parseFloat(objData.humidity).toFixed(2), parseFloat(objData.lux).toFixed(2));  
-          io.emit(process.env.TOPIC_DATA_SENSOR_CONTROL_PUB_FRONT, { objData });                  
+          DataLog.insertData(objData.temperature, objData.humidity, objData.lux, objData.wind);  
+          DataLog.countWind().then(count => {
+            // console.log(count.total_wind_records)
+            io.emit(process.env.TOPIC_DATA_SENSOR_CONTROL_PUB_FRONT, {
+              objData,
+              windCount: count.total_wind_records // Truyền count vào emit
+            });
+          }).catch(error => {
+            console.log(error);
+          });
+          // io.emit(process.env.TOPIC_DATA_SENSOR_CONTROL_PUB_FRONT, { objData, windCount: count.total_wind_records});                  
           } catch (error) {
             console.log(error);
           }
 
+        } else if (topic === process.env.TOPIC_OTHER_DEVICE_RES_STATUS_SUB_ESP8266) {
+          try {
+            const state = objData.state;
+            DeviceStatus.updateStatus("other_device", state);
+            ActionLog.insertAction("other_device", state);
+            io.emit(process.env.TOPIC_OTHER_DEVICE_PUB_FRONT, { state });            
+            } catch (error) {
+              console.log(error);
+            }
+        } else if (topic === process.env.TOPIC_WARNING_RES_STATUS_SUB_ESP8266) {
+          try {
+            const state = objData.state;
+            // DeviceStatus.updateStatus("other_device", state);
+            // ActionLog.insertAction("other_device", state);
+            io.emit(process.env.TOPIC_WARNING_PUB_FRONT, { state });            
+            } catch (error) {
+              console.log(error);
+            }
         }
       });
     } catch (err) {
@@ -140,12 +175,30 @@ io.on("connection", function (socket) {
       console.log(`Television ${status.toUpperCase()}`);
       MQTTService.publish(process.env.TOPIC_TELEVISION_REQ_PUB_ESP8266, status);
     });
+
+    socket.on(process.env.TOPIC_OTHER_DEVICE_CONTROL_SUB_FRONT, function (data) {
+      const status = data === "on" ? "on" : "off";
+      console.log(`Other device ${status.toUpperCase()}`);
+      MQTTService.publish(process.env.TOPIC_OTHER_DEVICE_REQ_PUB_ESP8266, status);
+    });
   
+    socket.on(process.env.TOPIC_WARNING_CONTROL_SUB_FRONT, function (data) {
+      const status = data === "on" ? "on" : "off";
+      console.log(`warning ${status.toUpperCase()}`);
+      MQTTService.publish(process.env.TOPIC_WARNING_REQ_PUB_ESP8266, status);
+    });
   });
 
-  const convertUnixTimestampToDate = (timestamp) => {
-    // Tạo đối tượng Date từ timestamp (giả sử timestamp là số giây)
-    const date = new Date(timestamp * 1000);  // Chuyển đổi giây thành mili giây
-    // Chuyển đổi Date thành chuỗi theo định dạng YYYY-MM-DD HH:MM:SS
-    return date.toISOString().slice(0, 19).replace('T', ' ');
+  const getCurrentTimeFormatted = () => {
+    const date = new Date(); // Lấy thời gian hiện tại
+  
+    const hours = String(date.getHours()).padStart(2, '0'); // Giờ
+    const minutes = String(date.getMinutes()).padStart(2, '0'); // Phút
+    const seconds = String(date.getSeconds()).padStart(2, '0'); // Giây
+    const day = String(date.getDate()).padStart(2, '0'); // Ngày
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Tháng (cộng 1)
+    const year = date.getFullYear(); // Năm
+  
+    // Tạo chuỗi định dạng hh:mm:ss dd/mm/yyyy
+    return `${hours}:${minutes}:${seconds} ${day}/${month}/${year}`;
   };
